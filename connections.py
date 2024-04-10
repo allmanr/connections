@@ -66,7 +66,7 @@ class Board:
 
     def print_guesses(self):
         for guess in self.guess_history:
-            print(get_color_list(guess))
+            print(guess)
     
     def update(self) -> bool:
         self.print_board()
@@ -77,11 +77,10 @@ class Board:
     def process_guess(self) -> bool:
         if self.number_selected != 4:
             return False
-        
-        self.guess_history.append(self.selected_tiles)
 
         colors = [c.color for c in self.selected_tiles.values()]
 
+        self.guess_history.append(colors)
         print("guess submitted: ", colors)
 
         # This check determines whether the guess was successful
@@ -154,6 +153,27 @@ class ConnectionsGame:
 
         self.mistakes_remaining = 4
         self.guess_history = list(list())
+
+    def play_game(self) -> bool:
+        """Main gameplay function. Accept and process user inputs"""
+        while not self.board.game_over:
+            self.accept_user_input()
+
+        return self.board.win
+
+    def accept_user_input(self, console_in=True) -> None:
+        
+        input_cmd = str()
+
+        if console_in:
+            input_cmd = input("Awaiting command")
+
+        if input_cmd.isnumeric():
+            self.user_input(int(input_cmd))
+        elif input_cmd == 'g':
+            self.process_guess()
+        elif input_cmd == 'q':
+            sys.exit(0)
     
     def initialize_color_map(self):
         for i, set in enumerate(self.answers):
@@ -167,15 +187,14 @@ class ConnectionsGame:
 
     def user_input(self, selection: int):
         if self.board.select_tile(selection):
-            # self.update_board()
-            pass
+            self.update_board()
 
     def process_guess(self):
         if self.board.process_guess():
             self.update_board()
 
-        if self.board.game_over:
-            self.board.handle_game_over()
+        '''if self.board.game_over:
+            self.board.handle_game_over()'''
 
     def update_board(self):
         self.board.update()
@@ -204,11 +223,14 @@ def main():
     G.user_input(2)
     G.user_input(5)
     G.process_guess()
-    """
+    
     user_input_simulator(G, [0, 1, 2, 3, 'g',
                              4, 5, 6, 7, 'g',
                              8, 9, 10, 11, 'g',
                              12, 13, 14, 15, 'g'])
+
+    """
+    G.play_game()
 
 
 if (__name__ == '__main__'):
